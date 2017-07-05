@@ -1,15 +1,33 @@
 const Profile =require('./profile.js');
 const render = require('./render.js');
+const querystring = require("querystring");
+
 
 //2. handle http route GET/ and POST/
 homeRoute = (request,response) =>{
-	//if url == / && GET
+	
 	if(request.url === "/"){
-		response.writeHead(200,{'Content-type':'text/plain'});
+		//if url == / && GET
+		if(request.method.toLowerCase() === "get"){
+		response.writeHead(200,{'Content-type':'text/html'});
 		render.view('header',{},response);
 		render.view('search',{},response);
 		render.view('footer',{},response);
 		response.end();
+	}else{
+		//if url = / && post
+
+		//get the post body
+		request.on("data",function(postBody){
+			//extract the username
+			// console.log(postBody.toString());
+			var query = querystring.parse(postBody.toString());
+			response.writeHead(303,{"Location":"/"+query.username});
+			response.end();
+
+			//redirect to /:username
+		})
+	}
 		// parse the request containing file name
 		// const pathname = url.parse(request.url).pathname;
 		// const location = `/files/index.html`;
@@ -43,7 +61,7 @@ homeRoute = (request,response) =>{
 userRoute=(request,response)=>{
 	const userName = request.url.replace("/","");
 	if(userName.length>0){
-		response.writeHead(200,{'Content-type':'text/plain'});
+		response.writeHead(200,{'Content-type':'text/html'});
 		render.view('header',{},response);
 
 		//get json from treehouse
